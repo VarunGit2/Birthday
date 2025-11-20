@@ -25,24 +25,24 @@
             cursor: none; 
         }
 
-        /* --- MARQUEE (FIXED: STICKY & HIGH Z-INDEX) --- */
+        /* --- MARQUEE (FIXED: POSITION FIXED + HIGHEST Z-INDEX) --- */
         .marquee-container {
-            position: fixed; /* Changed from absolute to fixed */
+            position: fixed; 
             top: 0; 
             left: 0;
             width: 100%; 
             padding: 15px 0; 
-            background: rgba(0,0,0,0.2); /* Slightly darker for readability */
-            z-index: 2000; /* Super high so nothing covers it */
+            background: rgba(0,0,0,0.1); 
+            z-index: 2000; 
             opacity: 0; 
-            transition: opacity 2s ease; 
+            transition: opacity 1s ease; 
             white-space: nowrap;
             pointer-events: none; 
         }
         .marquee-content { display: flex; width: fit-content; animation: scrollText 25s linear infinite; }
         .marquee-content span {
             font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem;
-            color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             margin-right: 60px; letter-spacing: 3px; text-transform: uppercase;
         }
         @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -101,13 +101,7 @@
             width: 300px; height: 10px; background: #eee; border-radius: 10px; margin-top: 0; margin-left: -25px;
         }
         .candles { display: flex; justify-content: center; gap: 30px; margin-bottom: -10px; position: relative; z-index: 2; }
-        
-        /* FIXED CANDLE CSS */
-        .candle { 
-            width: 15px; height: 60px; 
-            background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); 
-            position: relative; cursor: pointer; 
-        }
+        .candle { width: 15px; height: 60px; background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); position: relative; cursor: pointer; }
         .flame {
             width: 20px; height: 35px; background: orange; border-radius: 50% 50% 20% 20%;
             position: absolute; top: -35px; left: -2.5px;
@@ -183,7 +177,7 @@
     <div class="cursor-outline" id="cursor-outline"></div>
 
     <div class="layer" id="intro-layer">
-        <div class="reveal-text">Hey Beautiful...</div>
+        <div class="reveal-text">Hello Ji..</div>
         <button class="enter-btn" onclick="initCelebration()">Open Surprise</button>
         <p style="margin-top:15px; font-size:0.8rem; color:rgba(255,255,255,0.8);">(Allow Microphone Access for Magic ✨)</p>
     </div>
@@ -226,7 +220,7 @@
 
     <div class="layer" id="outro-layer">
         <div class="reveal-text" style="text-align: center;">Have a great day ahead! 💖</div>
-        <button class="enter-btn" onclick="location.reload()">Replay</button>
+        <button class="enter-btn" onclick="replayCelebration()">Replay</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -245,7 +239,6 @@
         }
         setInterval(createFloater, 150);
 
-        // --- 2. Cursor ---
         const dot = document.getElementById('cursor-dot');
         const outline = document.getElementById('cursor-outline');
         window.addEventListener('mousemove', (e) => {
@@ -254,7 +247,6 @@
             outline.animate({ left: `${x}px`, top: `${y}px` }, { duration: 400, fill: "forwards" });
         });
 
-        // --- 3. Flow Logic & Mic ---
         let audioContext;
         let analyser;
         let microphoneStream;
@@ -311,7 +303,6 @@
             if (candlesOut === 3) { setTimeout(finishCelebration, 800); }
         }
 
-        // --- 4. Final Reveal ---
         function finishCelebration() {
             if (microphoneStream) { microphoneStream.getTracks().forEach(track => track.stop()); }
             if (javascriptNode) { javascriptNode.disconnect(); javascriptNode = null; }
@@ -333,12 +324,58 @@
                 if (vol < 0.6) { vol += 0.05; music.volume = vol; } else { clearInterval(fadeInInterval); }
             }, 300);
             
-            // Outro Timer (35 seconds)
+            // Audio Fades out starting at 35s
             setTimeout(() => {
                 let fadeOutInterval = setInterval(function () {
                     if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
                 }, 200);
             }, 35000); 
+
+            // Visual Transition to Outro at 36s (No Silence Gap)
+            setTimeout(() => {
+                cardLayer.style.opacity = '0';
+                marquee.style.opacity = '0';
+                setTimeout(() => {
+                    cardLayer.style.display = 'none';
+                    marquee.style.display = 'none';
+                    outroLayer.style.display = 'flex';
+                    setTimeout(() => { outroLayer.style.opacity = '1'; }, 100);
+                }, 1000);
+            }, 36000); // Changed from 37500 to 36000 for better overlap
+
+            cardLayer.style.display = 'flex';
+            setTimeout(() => { 
+                cardLayer.style.opacity = '1'; 
+                marquee.style.display = 'block'; 
+                marquee.style.opacity = '1';
+                triggerSoftConfetti();
+            }, 500);
+        }
+
+        // --- NEW REPLAY FUNCTION (No Page Reload) ---
+        function replayCelebration() {
+            const cardLayer = document.getElementById('card-layer');
+            const marquee = document.getElementById('marquee');
+            const outroLayer = document.getElementById('outro-layer');
+            
+            // Hide Outro
+            outroLayer.style.opacity = '0';
+            setTimeout(() => { outroLayer.style.display = 'none'; }, 500);
+            
+            // Reset Music
+            music.currentTime = 0; music.volume = 0.1;
+            music.play().catch(e => console.log("Audio error:", e));
+            let vol = 0.1;
+            let fadeInInterval = setInterval(() => {
+                if (vol < 0.6) { vol += 0.05; music.volume = vol; } else { clearInterval(fadeInInterval); }
+            }, 300);
+
+            // Set Timer for Outro again
+            setTimeout(() => {
+                let fadeOutInterval = setInterval(function () {
+                    if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
+                }, 200);
+            }, 35000);
 
             setTimeout(() => {
                 cardLayer.style.opacity = '0';
@@ -349,18 +386,18 @@
                     outroLayer.style.display = 'flex';
                     setTimeout(() => { outroLayer.style.opacity = '1'; }, 100);
                 }, 1000);
-            }, 37500);
+            }, 36000);
 
+            // Show Card immediately
             cardLayer.style.display = 'flex';
-            setTimeout(() => { 
-                cardLayer.style.opacity = '1'; 
-                marquee.style.display = 'block'; // Force Display
+            marquee.style.display = 'block';
+            setTimeout(() => {
+                cardLayer.style.opacity = '1';
                 marquee.style.opacity = '1';
                 triggerSoftConfetti();
             }, 500);
         }
 
-        // --- 5. Slideshow ---
         let slideIndex = 0;
         const slides = document.querySelectorAll('.gallery-img');
         function showSlides() {
@@ -372,7 +409,6 @@
         }
         showSlides();
 
-        // --- 6. Tilt ---
         const card = document.getElementById('tilt-card');
         const container = document.getElementById('card-layer');
         container.addEventListener('mousemove', (e) => {
@@ -386,7 +422,6 @@
             }
         });
 
-        // --- 7. Confetti ---
         function triggerSoftConfetti() {
             const duration = 3000; const end = Date.now() + duration;
             (function frame() {
