@@ -94,23 +94,22 @@
         }
         .candles { display: flex; justify-content: center; gap: 30px; margin-bottom: -10px; position: relative; z-index: 2; }
         
-        /* FIXED CANDLE & FLAME CSS */
+        /* --- FIXED CANDLES (No Hacks) --- */
         .candle { 
             width: 15px; height: 60px; 
             background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); 
             position: relative; 
-            cursor: pointer; /* Shows it's clickable */
+            cursor: pointer; 
         }
         
         .flame {
             width: 20px; height: 35px; 
-            background: orange; /* Default flame color */
+            background: orange; /* This color was getting hidden before, now fixed */
             border-radius: 50% 50% 20% 20%;
             position: absolute; top: -35px; left: -2.5px;
-            box-shadow: 0 0 10px orange, 0 0 20px yellow, 0 0 30px white; /* Glowing effect */
+            box-shadow: 0 0 10px orange, 0 0 20px yellow, 0 0 30px white;
             animation: flicker 0.1s infinite alternate; 
             transition: opacity 0.3s;
-            /* Removed padding/clip hacks that caused the black blob issue */
         }
         .flame.out { opacity: 0; animation: none; }
         
@@ -251,6 +250,7 @@
         const music = document.getElementById('bg-music');
 
         function initCelebration() {
+            // Unlock Audio
             music.volume = 0;
             music.play().then(() => {
                 music.pause();
