@@ -8,8 +8,8 @@
     
     <style>
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.2);
-            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -60,15 +60,27 @@
             transition: opacity 1s ease, transform 1s ease;
         }
 
-        /* 1. INTRO LAYER */
-        #intro-layer { z-index: 50; background: #fdfbfb; }
-        .reveal-text { font-family: 'Playfair Display', serif; font-size: 2rem; color: #333; opacity: 0; transform: translateY(20px); animation: fadeInUp 1s ease forwards 0.5s; }
-        .enter-btn {
-            margin-top: 40px; padding: 12px 35px; border: none;
-            background: linear-gradient(to right, #667eea, #764ba2); color: white; font-family: 'Poppins', sans-serif; border-radius: 30px;
-            opacity: 0; animation: fadeInUp 1s ease forwards 1.5s; cursor: pointer; position: relative; z-index: 51; transition: transform 0.2s;
+        /* 1. INTRO LAYER (Updated for Purple Vibe) */
+        #intro-layer { 
+            z-index: 50; 
+            /* Transparent background so the body gradient shows through */
+            background: transparent; 
+            backdrop-filter: blur(10px); /* Glass effect */
         }
-        .enter-btn:hover { transform: scale(1.05); }
+        .reveal-text { 
+            font-family: 'Playfair Display', serif; font-size: 2.5rem; 
+            color: #fff; /* Changed to White */
+            text-shadow: 0 0 15px rgba(255,255,255,0.3);
+            opacity: 0; transform: translateY(20px); animation: fadeInUp 1s ease forwards 0.5s; 
+        }
+        .enter-btn {
+            margin-top: 40px; padding: 15px 40px; border: 1px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.2); color: white; font-family: 'Poppins', sans-serif; border-radius: 30px;
+            font-weight: 600; letter-spacing: 1px;
+            opacity: 0; animation: fadeInUp 1s ease forwards 1.5s; cursor: pointer; position: relative; z-index: 51; transition: transform 0.2s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .enter-btn:hover { background: white; color: #764ba2; transform: scale(1.05); }
 
         /* 2. CAKE LAYER */
         #cake-layer { z-index: 40; background: rgba(0,0,0,0.9); display: none; opacity: 0; }
@@ -95,17 +107,22 @@
         .flame.out { opacity: 0; animation: none; }
         .instruction-text { color: white; font-size: 1.2rem; margin-bottom: 40px; text-align: center; font-family: 'Playfair Display', serif; }
 
-        /* 3. MAIN CARD LAYER */
+        /* 3. MAIN CARD LAYER (FIXED SIZING) */
         #card-layer { z-index: 30; display: none; opacity: 0; }
         .glass-card {
-            width: 360px; height: auto; min-height: 600px;
+            width: 360px; 
+            /* Allow height to fit content */
+            height: auto; 
+            max-height: 90vh; /* Ensure it fits on screen */
             background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px;
             box-shadow: 0 25px 45px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; transform-style: preserve-3d;
         }
         .gallery-frame {
-            width: 100%; height: 380px; border-radius: 15px; overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 25px;
+            width: 100%; 
+            height: 380px; /* Desktop height */
+            border-radius: 15px; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 20px;
             transform: translateZ(30px); position: relative; background: #000;
         }
         .gallery-img { 
@@ -115,8 +132,8 @@
         .gallery-img.active { opacity: 1; }
 
         h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #fff; margin-bottom: 5px; transform: translateZ(40px); text-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 15px; transform: translateZ(35px); }
-        p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.6; transform: translateZ(25px); }
+        .subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 10px; transform: translateZ(35px); }
+        p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.5; transform: translateZ(25px); }
 
         @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(2deg); } }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
@@ -124,9 +141,23 @@
         @media (max-width: 768px) {
             .cursor-dot, .cursor-outline { display: none; }
             body { cursor: auto; }
-            .glass-card { width: 90%; min-height: 550px; }
-            .gallery-frame { height: 320px; }
-            h1 { font-size: 2rem; }
+            
+            /* MOBILE FIXES */
+            .glass-card { 
+                width: 90%; 
+                padding: 15px;
+                /* Ensure card fits on smaller screens */
+                max-height: 85vh; 
+            }
+            .gallery-frame { 
+                /* Reduce image height on mobile so button fits */
+                height: 320px; 
+                margin-bottom: 15px;
+            }
+            h1 { font-size: 2rem; margin-bottom: 2px; }
+            .subtitle { margin-bottom: 8px; }
+            p.wish { font-size: 0.8rem; margin-bottom: 10px; }
+            
             .marquee-content span { font-size: 0.9rem; margin-right: 50px; }
         }
     </style>
@@ -155,7 +186,7 @@
     <div class="layer" id="intro-layer">
         <div class="reveal-text">Hey Beautiful...</div>
         <button class="enter-btn" onclick="initCelebration()">Open Surprise</button>
-        <p style="margin-top:10px; font-size:0.8rem; color:#666;">(Allow Microphone Access for Magic ✨)</p>
+        <p style="margin-top:15px; font-size:0.8rem; color:rgba(255,255,255,0.8);">(Allow Microphone Access for Magic ✨)</p>
     </div>
 
     <div class="layer" id="cake-layer">
@@ -229,7 +260,6 @@
 
         function initCelebration() {
             // FIX: Unlock Audio Logic
-            // We play it once at 0 volume, then pause it. This "whitelists" the audio for later.
             music.volume = 0;
             music.play().then(() => {
                 music.pause();
@@ -247,7 +277,7 @@
         function setupMicrophone() {
             navigator.mediaDevices.getUserMedia({ audio: true })
             .then(function(stream) {
-                microphoneStream = stream; // Save stream to stop it later
+                microphoneStream = stream;
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
                 const microphone = audioContext.createMediaStreamSource(stream);
@@ -269,8 +299,6 @@
                         values += array[i];
                     }
                     const average = values / length;
-                    
-                    // Threshold
                     if (average > 50) {
                         blowOutRandomCandle();
                     }
@@ -297,8 +325,6 @@
 
         // --- 4. Final Reveal ---
         function finishCelebration() {
-            // CRITICAL FIX: Stop Microphone Stream completely
-            // This releases the OS audio focus, allowing music to play clearly
             if (microphoneStream) {
                 microphoneStream.getTracks().forEach(track => track.stop());
             }
@@ -317,12 +343,10 @@
             cakeLayer.style.opacity = '0';
             setTimeout(() => { cakeLayer.style.display = 'none'; }, 1000);
 
-            // Play Music and Fade Up
             music.currentTime = 0;
             music.volume = 0.1;
             music.play().catch(e => console.log("Audio error:", e));
             
-            // Volume Fade In
             let vol = 0.1;
             let fadeInInterval = setInterval(() => {
                 if (vol < 0.6) { 
@@ -333,7 +357,6 @@
                 }
             }, 300);
             
-            // Fade Out after 40s
             setTimeout(() => {
                 let fadeOutInterval = setInterval(function () {
                     if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
