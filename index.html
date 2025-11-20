@@ -39,7 +39,7 @@
         }
         @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* --- BACKGROUND ELEMENTS (FIXED: FLOAT TO TOP) --- */
+        /* --- BACKGROUND ELEMENTS --- */
         .floater {
             position: absolute; opacity: 0; z-index: 0;
             animation: floatUp linear infinite; color: rgba(255, 255, 255, 0.6);
@@ -49,7 +49,7 @@
         @keyframes floatUp {
             0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
             5% { opacity: 1; } 
-            95% { opacity: 1; } /* Stays visible until the top */
+            95% { opacity: 1; } 
             100% { transform: translateY(-10vh) rotate(360deg) scale(1); opacity: 0; }
         }
 
@@ -129,7 +129,7 @@
 
         /* 4. OUTRO LAYER */
         #outro-layer { 
-            z-index: 100; /* On TOP of everything */
+            z-index: 100; 
             display: none; 
             opacity: 0; 
             background: rgba(0,0,0,0.4); 
@@ -172,7 +172,7 @@
     <div class="cursor-outline" id="cursor-outline"></div>
 
     <div class="layer" id="intro-layer">
-        <div class="reveal-text">Hey Beautiful...</div>
+        <div class="reveal-text">Hello Ji..</div>
         <button class="enter-btn" onclick="initCelebration()">Open Surprise</button>
         <p style="margin-top:15px; font-size:0.8rem; color:rgba(255,255,255,0.8);">(Allow Microphone Access for Magic ✨)</p>
     </div>
@@ -208,13 +208,13 @@
             <h1>Vanshu</h1>
             <p class="wish">
                 Happy Birthday! 🥂<br>
-                Here’s to the main character energy you bring to everything. May your year be as aesthetic as your vibes and as bright as your smile.
+                Here’s to the main character energy you bring to everything. May your year be as aesthetic as your vibes and as bright as your smile. ✨
             </p>
         </div>
     </div>
 
     <div class="layer" id="outro-layer">
-        <div class="reveal-text" style="text-align: center;">Have a great day ahead! 💖<br><span style="font-size: 1rem; opacity: 0.8; margin-top: 10px; display: block;">(Replay for good vibes)</span></div>
+        <div class="reveal-text" style="text-align: center;">Have a great day ahead! 💖</div>
         <button class="enter-btn" onclick="location.reload()">Replay</button>
     </div>
 
@@ -300,7 +300,7 @@
             if (candlesOut === 3) { setTimeout(finishCelebration, 800); }
         }
 
-        // --- 4. Final Reveal & Outro Logic (40s TIMING) ---
+        // --- 4. Final Reveal & Outro Logic (TIMING: 39s) ---
         function finishCelebration() {
             if (microphoneStream) { microphoneStream.getTracks().forEach(track => track.stop()); }
             if (javascriptNode) { javascriptNode.disconnect(); javascriptNode = null; }
@@ -318,20 +318,19 @@
             music.currentTime = 0; music.volume = 0.1;
             music.play().catch(e => console.log("Audio error:", e));
             
-            // Fade In
             let vol = 0.1;
             let fadeInInterval = setInterval(() => {
                 if (vol < 0.6) { vol += 0.05; music.volume = vol; } else { clearInterval(fadeInInterval); }
             }, 300);
             
-            // Fade Out (Start at 36s)
+            // Fade Out (Start at 35s)
             setTimeout(() => {
                 let fadeOutInterval = setInterval(function () {
                     if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
                 }, 200);
-            }, 36000); // 36 Seconds
+            }, 35000); 
 
-            // Trigger Outro (At 40s)
+            // Trigger Outro (At 39s)
             setTimeout(() => {
                 cardLayer.style.opacity = '0';
                 marquee.style.opacity = '0';
@@ -341,7 +340,7 @@
                     outroLayer.style.display = 'flex';
                     setTimeout(() => { outroLayer.style.opacity = '1'; }, 100);
                 }, 1000);
-            }, 40000); // 40 Seconds
+            }, 39000); 
 
             cardLayer.style.display = 'flex';
             setTimeout(() => { 
