@@ -25,24 +25,25 @@
             cursor: none; 
         }
 
-        /* --- MARQUEE (FIXED: Z-INDEX INCREASED) --- */
+        /* --- MARQUEE (FIXED: ON TOP & BRIGHTER) --- */
         .marquee-container {
             position: absolute; 
             top: 0; 
             width: 100%; 
-            padding: 20px 0; /* Slightly taller */
-            background: rgba(255,255,255,0.1); 
-            z-index: 60; /* CRITICAL FIX: Moves it above everything */
+            padding: 20px 0; 
+            background: rgba(255,255,255,0.05); 
+            /* Z-INDEX 60 puts it ABOVE the card */
+            z-index: 60; 
             opacity: 0; 
             transition: opacity 2s ease; 
             white-space: nowrap;
-            pointer-events: none; /* Allows clicking through it */
+            pointer-events: none; 
         }
         .marquee-content { display: flex; width: fit-content; animation: scrollText 25s linear infinite; }
         .marquee-content span {
             font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem;
             color: #ffffff; /* Pure White */
-            text-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Shadow for visibility */
+            text-shadow: 0 0 10px rgba(255,255,255,0.5); /* Glow effect */
             margin-right: 80px; 
             letter-spacing: 3px; 
             text-transform: uppercase;
@@ -76,11 +77,11 @@
         #intro-layer { 
             z-index: 50; 
             background: transparent; 
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px); /* Stronger blur for readability */
         }
         .reveal-text { 
             font-family: 'Playfair Display', serif; font-size: 2.5rem; 
-            color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.3);
+            color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5);
             opacity: 0; transform: translateY(20px); animation: fadeInUp 1s ease forwards 0.5s; 
         }
         .enter-btn {
@@ -113,6 +114,10 @@
             position: absolute; top: -35px; left: -2.5px;
             box-shadow: 0 0 10px orange, 0 0 20px yellow, 0 0 30px white;
             animation: flicker 0.1s infinite alternate; cursor: pointer; transition: opacity 0.3s;
+            /* Bigger tap area for mobile */
+            padding: 20px; 
+            margin: -20px;
+            background-clip: content-box; 
         }
         .flame.out { opacity: 0; animation: none; }
         .instruction-text { color: white; font-size: 1.2rem; margin-bottom: 40px; text-align: center; font-family: 'Playfair Display', serif; }
@@ -139,7 +144,7 @@
 
         h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #fff; margin-bottom: 5px; transform: translateZ(40px); text-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 10px; transform: translateZ(35px); }
-        p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.6; transform: translateZ(25px); }
+        p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.5; transform: translateZ(25px); }
 
         @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(2deg); } }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
@@ -147,13 +152,9 @@
         @media (max-width: 768px) {
             .cursor-dot, .cursor-outline { display: none; }
             body { cursor: auto; }
-            
             .glass-card { width: 90%; max-height: 85vh; padding: 15px; }
             .gallery-frame { height: 320px; margin-bottom: 15px; }
             h1 { font-size: 2rem; margin-bottom: 2px; }
-            p.wish { font-size: 0.8rem; }
-            
-            /* Fix Marquee on Mobile */
             .marquee-content span { font-size: 0.9rem; margin-right: 40px; }
         }
     </style>
@@ -256,6 +257,7 @@
         const music = document.getElementById('bg-music');
 
         function initCelebration() {
+            // FIX: Unlock Audio (Mobile requirement)
             music.volume = 0;
             music.play().then(() => {
                 music.pause();
@@ -274,6 +276,12 @@
             .then(function(stream) {
                 microphoneStream = stream;
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // FIX: Wake up AudioContext for mobile
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
                 analyser = audioContext.createAnalyser();
                 const microphone = audioContext.createMediaStreamSource(stream);
                 javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
@@ -294,7 +302,8 @@
                         values += array[i];
                     }
                     const average = values / length;
-                    if (average > 50) {
+                    // Lowered threshold to 30 for easier blowing
+                    if (average > 30) {
                         blowOutRandomCandle();
                     }
                 }
@@ -320,6 +329,7 @@
 
         // --- 4. Final Reveal ---
         function finishCelebration() {
+            // Stop Mic
             if (microphoneStream) {
                 microphoneStream.getTracks().forEach(track => track.stop());
             }
@@ -338,6 +348,7 @@
             cakeLayer.style.opacity = '0';
             setTimeout(() => { cakeLayer.style.display = 'none'; }, 1000);
 
+            // Play Music
             music.currentTime = 0;
             music.volume = 0.1;
             music.play().catch(e => console.log("Audio error:", e));
