@@ -25,19 +25,31 @@
             cursor: none; 
         }
 
-        /* --- BACKGROUND ELEMENTS --- */
+        /* --- MARQUEE (FIXED: Z-INDEX INCREASED) --- */
         .marquee-container {
-            position: absolute; top: 0; width: 100%; padding: 15px 0;
-            background: rgba(255,255,255,0.05); z-index: 1;
-            opacity: 0; transition: opacity 2s ease; white-space: nowrap;
+            position: absolute; 
+            top: 0; 
+            width: 100%; 
+            padding: 20px 0; /* Slightly taller */
+            background: rgba(255,255,255,0.1); 
+            z-index: 60; /* CRITICAL FIX: Moves it above everything */
+            opacity: 0; 
+            transition: opacity 2s ease; 
+            white-space: nowrap;
+            pointer-events: none; /* Allows clicking through it */
         }
         .marquee-content { display: flex; width: fit-content; animation: scrollText 25s linear infinite; }
         .marquee-content span {
             font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.85); margin-right: 100px; letter-spacing: 4px; text-transform: uppercase;
+            color: #ffffff; /* Pure White */
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Shadow for visibility */
+            margin-right: 80px; 
+            letter-spacing: 3px; 
+            text-transform: uppercase;
         }
         @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
+        /* --- BACKGROUND ELEMENTS --- */
         .floater {
             position: absolute; opacity: 0; z-index: 0;
             animation: floatUp linear infinite; color: rgba(255, 255, 255, 0.5);
@@ -60,17 +72,15 @@
             transition: opacity 1s ease, transform 1s ease;
         }
 
-        /* 1. INTRO LAYER (Updated for Purple Vibe) */
+        /* 1. INTRO LAYER */
         #intro-layer { 
             z-index: 50; 
-            /* Transparent background so the body gradient shows through */
             background: transparent; 
-            backdrop-filter: blur(10px); /* Glass effect */
+            backdrop-filter: blur(15px);
         }
         .reveal-text { 
             font-family: 'Playfair Display', serif; font-size: 2.5rem; 
-            color: #fff; /* Changed to White */
-            text-shadow: 0 0 15px rgba(255,255,255,0.3);
+            color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.3);
             opacity: 0; transform: translateY(20px); animation: fadeInUp 1s ease forwards 0.5s; 
         }
         .enter-btn {
@@ -107,20 +117,16 @@
         .flame.out { opacity: 0; animation: none; }
         .instruction-text { color: white; font-size: 1.2rem; margin-bottom: 40px; text-align: center; font-family: 'Playfair Display', serif; }
 
-        /* 3. MAIN CARD LAYER (FIXED SIZING) */
+        /* 3. MAIN CARD LAYER */
         #card-layer { z-index: 30; display: none; opacity: 0; }
         .glass-card {
-            width: 360px; 
-            /* Allow height to fit content */
-            height: auto; 
-            max-height: 90vh; /* Ensure it fits on screen */
+            width: 360px; height: auto; max-height: 90vh;
             background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px;
             box-shadow: 0 25px 45px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; transform-style: preserve-3d;
         }
         .gallery-frame {
-            width: 100%; 
-            height: 380px; /* Desktop height */
+            width: 100%; height: 380px; 
             border-radius: 15px; overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 20px;
             transform: translateZ(30px); position: relative; background: #000;
@@ -133,7 +139,7 @@
 
         h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #fff; margin-bottom: 5px; transform: translateZ(40px); text-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 10px; transform: translateZ(35px); }
-        p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.5; transform: translateZ(25px); }
+        p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.6; transform: translateZ(25px); }
 
         @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(2deg); } }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
@@ -142,23 +148,13 @@
             .cursor-dot, .cursor-outline { display: none; }
             body { cursor: auto; }
             
-            /* MOBILE FIXES */
-            .glass-card { 
-                width: 90%; 
-                padding: 15px;
-                /* Ensure card fits on smaller screens */
-                max-height: 85vh; 
-            }
-            .gallery-frame { 
-                /* Reduce image height on mobile so button fits */
-                height: 320px; 
-                margin-bottom: 15px;
-            }
+            .glass-card { width: 90%; max-height: 85vh; padding: 15px; }
+            .gallery-frame { height: 320px; margin-bottom: 15px; }
             h1 { font-size: 2rem; margin-bottom: 2px; }
-            .subtitle { margin-bottom: 8px; }
-            p.wish { font-size: 0.8rem; margin-bottom: 10px; }
+            p.wish { font-size: 0.8rem; }
             
-            .marquee-content span { font-size: 0.9rem; margin-right: 50px; }
+            /* Fix Marquee on Mobile */
+            .marquee-content span { font-size: 0.9rem; margin-right: 40px; }
         }
     </style>
 </head>
@@ -169,6 +165,7 @@
     </audio>
 
     <div id="floating-elements"></div>
+    
     <div class="marquee-container" id="marquee">
         <div class="marquee-content">
             <span>Happy Birthday Vanshu</span>
@@ -259,13 +256,11 @@
         const music = document.getElementById('bg-music');
 
         function initCelebration() {
-            // FIX: Unlock Audio Logic
             music.volume = 0;
             music.play().then(() => {
                 music.pause();
             }).catch(e => console.log("Autoplay prevented, but will retry on reveal:", e));
 
-            // Visual Transition
             document.getElementById('intro-layer').style.transform = 'translateY(-100%)';
             const cakeLayer = document.getElementById('cake-layer');
             cakeLayer.style.display = 'flex';
