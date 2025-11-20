@@ -39,7 +39,7 @@
         }
         @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* --- BACKGROUND ELEMENTS --- */
+        /* --- BACKGROUND ELEMENTS (FIXED: FLOAT TO TOP) --- */
         .floater {
             position: absolute; opacity: 0; z-index: 0;
             animation: floatUp linear infinite; color: rgba(255, 255, 255, 0.5);
@@ -47,7 +47,8 @@
         }
         @keyframes floatUp {
             0% { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 0; }
-            10% { opacity: 0.7; } 90% { opacity: 0.7; }
+            10% { opacity: 0.7; } 
+            95% { opacity: 0.7; } /* Keep visible almost until the end */
             100% { transform: translateY(-10vh) rotate(360deg) scale(1); opacity: 0; }
         }
 
@@ -94,25 +95,15 @@
         }
         .candles { display: flex; justify-content: center; gap: 30px; margin-bottom: -10px; position: relative; z-index: 2; }
         
-        /* --- FIXED CANDLES (No Hacks) --- */
-        .candle { 
-            width: 15px; height: 60px; 
-            background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); 
-            position: relative; 
-            cursor: pointer; 
-        }
+        .candle { width: 15px; height: 60px; background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); position: relative; cursor: pointer; }
         
         .flame {
-            width: 20px; height: 35px; 
-            background: orange; /* This color was getting hidden before, now fixed */
-            border-radius: 50% 50% 20% 20%;
+            width: 20px; height: 35px; background: orange; border-radius: 50% 50% 20% 20%;
             position: absolute; top: -35px; left: -2.5px;
             box-shadow: 0 0 10px orange, 0 0 20px yellow, 0 0 30px white;
-            animation: flicker 0.1s infinite alternate; 
-            transition: opacity 0.3s;
+            animation: flicker 0.1s infinite alternate; transition: opacity 0.3s;
         }
         .flame.out { opacity: 0; animation: none; }
-        
         .instruction-text { color: white; font-size: 1.2rem; margin-bottom: 40px; text-align: center; font-family: 'Playfair Display', serif; }
 
         /* 3. MAIN CARD LAYER */
@@ -124,20 +115,19 @@
             box-shadow: 0 25px 45px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; transform-style: preserve-3d;
         }
         .gallery-frame {
-            width: 100%; height: 380px; 
-            border-radius: 15px; overflow: hidden;
+            width: 100%; height: 380px; border-radius: 15px; overflow: hidden;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 20px;
             transform: translateZ(30px); position: relative; background: #000;
         }
-        .gallery-img { 
-            width: 100%; height: 100%; object-fit: cover; object-position: top center; 
-            position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 1.5s ease-in-out; 
-        }
+        .gallery-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 1.5s ease-in-out; }
         .gallery-img.active { opacity: 1; }
 
         h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #fff; margin-bottom: 5px; transform: translateZ(40px); text-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 10px; transform: translateZ(35px); }
         p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.5; transform: translateZ(25px); }
+
+        /* 4. OUTRO LAYER (NEW) */
+        #outro-layer { z-index: 60; display: none; opacity: 0; background: transparent; backdrop-filter: blur(15px); }
 
         @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(2deg); } }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
@@ -216,9 +206,14 @@
         </div>
     </div>
 
+    <div class="layer" id="outro-layer">
+        <div class="reveal-text">Have a great day ahead! 💖</div>
+        <button class="enter-btn" onclick="location.reload()">Replay</button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        // --- 1. Background Elements ---
+        // --- 1. Background Elements (Fixed to float top) ---
         const floatContainer = document.getElementById('floating-elements');
         const symbols = ['✨', '💖', '🌸', '⭐', '🌼', '🌷', '💫', '🌟'];
         function createFloater() {
@@ -250,17 +245,13 @@
         const music = document.getElementById('bg-music');
 
         function initCelebration() {
-            // Unlock Audio
             music.volume = 0;
-            music.play().then(() => {
-                music.pause();
-            }).catch(e => console.log("Autoplay prevented, but will retry on reveal:", e));
+            music.play().then(() => { music.pause(); }).catch(e => console.log("Autoplay prevented"));
 
             document.getElementById('intro-layer').style.transform = 'translateY(-100%)';
             const cakeLayer = document.getElementById('cake-layer');
             cakeLayer.style.display = 'flex';
             setTimeout(() => { cakeLayer.style.opacity = '1'; }, 500);
-            
             setupMicrophone();
         }
 
@@ -269,39 +260,23 @@
             .then(function(stream) {
                 microphoneStream = stream;
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-
+                if (audioContext.state === 'suspended') { audioContext.resume(); }
                 analyser = audioContext.createAnalyser();
                 const microphone = audioContext.createMediaStreamSource(stream);
                 javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
-
-                analyser.smoothingTimeConstant = 0.8;
-                analyser.fftSize = 1024;
-
-                microphone.connect(analyser);
-                analyser.connect(javascriptNode);
-                javascriptNode.connect(audioContext.destination);
+                analyser.smoothingTimeConstant = 0.8; analyser.fftSize = 1024;
+                microphone.connect(analyser); analyser.connect(javascriptNode); javascriptNode.connect(audioContext.destination);
 
                 javascriptNode.onaudioprocess = function() {
                     const array = new Uint8Array(analyser.frequencyBinCount);
                     analyser.getByteFrequencyData(array);
-                    let values = 0;
-                    const length = array.length;
-                    for (let i = 0; i < length; i++) {
-                        values += array[i];
-                    }
+                    let values = 0; const length = array.length;
+                    for (let i = 0; i < length; i++) { values += array[i]; }
                     const average = values / length;
-                    if (average > 30) {
-                        blowOutRandomCandle();
-                    }
+                    if (average > 30) { blowOutRandomCandle(); }
                 }
             })
-            .catch(function(err) {
-                console.log('Mic denied or error:', err);
-            });
+            .catch(function(err) { console.log('Mic denied or error:', err); });
         }
 
         function blowOutRandomCandle() {
@@ -318,45 +293,48 @@
             if (candlesOut === 3) { setTimeout(finishCelebration, 800); }
         }
 
-        // --- 4. Final Reveal ---
+        // --- 4. Final Reveal & Outro Logic ---
         function finishCelebration() {
-            if (microphoneStream) {
-                microphoneStream.getTracks().forEach(track => track.stop());
-            }
-            if (javascriptNode) {
-                javascriptNode.disconnect();
-                javascriptNode = null;
-            }
-            if (audioContext) {
-                audioContext.close();
-            }
+            if (microphoneStream) { microphoneStream.getTracks().forEach(track => track.stop()); }
+            if (javascriptNode) { javascriptNode.disconnect(); javascriptNode = null; }
+            if (audioContext) { audioContext.close(); }
 
             const cakeLayer = document.getElementById('cake-layer');
             const cardLayer = document.getElementById('card-layer');
             const marquee = document.getElementById('marquee');
+            const outroLayer = document.getElementById('outro-layer');
             
             cakeLayer.style.opacity = '0';
             setTimeout(() => { cakeLayer.style.display = 'none'; }, 1000);
 
-            music.currentTime = 0;
-            music.volume = 0.1;
+            // Music Start
+            music.currentTime = 0; music.volume = 0.1;
             music.play().catch(e => console.log("Audio error:", e));
             
+            // Fade In
             let vol = 0.1;
             let fadeInInterval = setInterval(() => {
-                if (vol < 0.6) { 
-                    vol += 0.05; 
-                    music.volume = vol; 
-                } else { 
-                    clearInterval(fadeInInterval); 
-                }
+                if (vol < 0.6) { vol += 0.05; music.volume = vol; } else { clearInterval(fadeInInterval); }
             }, 300);
             
+            // Fade Out (starts at 40s)
             setTimeout(() => {
                 let fadeOutInterval = setInterval(function () {
                     if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
                 }, 200);
             }, 40000);
+
+            // TRIGGER OUTRO SCREEN (After 45s)
+            setTimeout(() => {
+                cardLayer.style.opacity = '0';
+                marquee.style.opacity = '0';
+                setTimeout(() => {
+                    cardLayer.style.display = 'none';
+                    marquee.style.display = 'none';
+                    outroLayer.style.display = 'flex';
+                    setTimeout(() => { outroLayer.style.opacity = '1'; }, 100);
+                }, 1000);
+            }, 45000);
 
             cardLayer.style.display = 'flex';
             setTimeout(() => { 
