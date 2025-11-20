@@ -42,13 +42,14 @@
         /* --- BACKGROUND ELEMENTS (FIXED: FLOAT TO TOP) --- */
         .floater {
             position: absolute; opacity: 0; z-index: 0;
-            animation: floatUp linear infinite; color: rgba(255, 255, 255, 0.5);
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); pointer-events: none;
+            animation: floatUp linear infinite; color: rgba(255, 255, 255, 0.6); /* Increased visibility */
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); pointer-events: none;
         }
+        
         @keyframes floatUp {
-            0% { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 0; }
-            10% { opacity: 0.7; } 
-            95% { opacity: 0.7; } /* Keep visible almost until the end */
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+            5% { opacity: 1; } /* Fade in quickly at bottom */
+            95% { opacity: 1; } /* STAY VISIBLE until very top */
             100% { transform: translateY(-10vh) rotate(360deg) scale(1); opacity: 0; }
         }
 
@@ -126,8 +127,14 @@
         .subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 10px; transform: translateZ(35px); }
         p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.5; transform: translateZ(25px); }
 
-        /* 4. OUTRO LAYER (NEW) */
-        #outro-layer { z-index: 60; display: none; opacity: 0; background: transparent; backdrop-filter: blur(15px); }
+        /* 4. OUTRO LAYER (FIXED Z-INDEX) */
+        #outro-layer { 
+            z-index: 100; /* Ensures it is above everything */
+            display: none; 
+            opacity: 0; 
+            background: rgba(0,0,0,0.4); /* Slight dim for readability */
+            backdrop-filter: blur(20px); 
+        }
 
         @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(2deg); } }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
@@ -207,13 +214,13 @@
     </div>
 
     <div class="layer" id="outro-layer">
-        <div class="reveal-text">Have a great day ahead! 💖</div>
+        <div class="reveal-text" style="text-align: center;">Have a great day ahead! 💖<br><span style="font-size: 1rem; opacity: 0.8; margin-top: 10px; display: block;">(Replay for good vibes)</span></div>
         <button class="enter-btn" onclick="location.reload()">Replay</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        // --- 1. Background Elements (Fixed to float top) ---
+        // --- 1. Background Elements ---
         const floatContainer = document.getElementById('floating-elements');
         const symbols = ['✨', '💖', '🌸', '⭐', '🌼', '🌷', '💫', '🌟'];
         function createFloater() {
@@ -311,30 +318,31 @@
             music.currentTime = 0; music.volume = 0.1;
             music.play().catch(e => console.log("Audio error:", e));
             
-            // Fade In
             let vol = 0.1;
             let fadeInInterval = setInterval(() => {
                 if (vol < 0.6) { vol += 0.05; music.volume = vol; } else { clearInterval(fadeInInterval); }
             }, 300);
             
-            // Fade Out (starts at 40s)
+            // Start Outro Timer (45 Seconds)
             setTimeout(() => {
+                // Fade out music
                 let fadeOutInterval = setInterval(function () {
                     if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
                 }, 200);
-            }, 40000);
 
-            // TRIGGER OUTRO SCREEN (After 45s)
-            setTimeout(() => {
+                // Hide Card & Marquee
                 cardLayer.style.opacity = '0';
                 marquee.style.opacity = '0';
+                
+                // Show Outro
                 setTimeout(() => {
                     cardLayer.style.display = 'none';
                     marquee.style.display = 'none';
                     outroLayer.style.display = 'flex';
                     setTimeout(() => { outroLayer.style.opacity = '1'; }, 100);
                 }, 1000);
-            }, 45000);
+
+            }, 45000); // 45 Seconds Timer
 
             cardLayer.style.display = 'flex';
             setTimeout(() => { 
