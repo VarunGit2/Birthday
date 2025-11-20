@@ -25,28 +25,17 @@
             cursor: none; 
         }
 
-        /* --- MARQUEE (FIXED: ON TOP & BRIGHTER) --- */
+        /* --- MARQUEE --- */
         .marquee-container {
-            position: absolute; 
-            top: 0; 
-            width: 100%; 
-            padding: 20px 0; 
-            background: rgba(255,255,255,0.05); 
-            /* Z-INDEX 60 puts it ABOVE the card */
-            z-index: 60; 
-            opacity: 0; 
-            transition: opacity 2s ease; 
-            white-space: nowrap;
-            pointer-events: none; 
+            position: absolute; top: 0; width: 100%; padding: 20px 0; 
+            background: rgba(255,255,255,0.05); z-index: 60; opacity: 0; 
+            transition: opacity 2s ease; white-space: nowrap; pointer-events: none; 
         }
         .marquee-content { display: flex; width: fit-content; animation: scrollText 25s linear infinite; }
         .marquee-content span {
             font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem;
-            color: #ffffff; /* Pure White */
-            text-shadow: 0 0 10px rgba(255,255,255,0.5); /* Glow effect */
-            margin-right: 80px; 
-            letter-spacing: 3px; 
-            text-transform: uppercase;
+            color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            margin-right: 80px; letter-spacing: 3px; text-transform: uppercase;
         }
         @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
@@ -74,11 +63,7 @@
         }
 
         /* 1. INTRO LAYER */
-        #intro-layer { 
-            z-index: 50; 
-            background: transparent; 
-            backdrop-filter: blur(20px); /* Stronger blur for readability */
-        }
+        #intro-layer { z-index: 50; background: transparent; backdrop-filter: blur(20px); }
         .reveal-text { 
             font-family: 'Playfair Display', serif; font-size: 2.5rem; 
             color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5);
@@ -108,18 +93,27 @@
             width: 300px; height: 10px; background: #eee; border-radius: 10px; margin-top: 0; margin-left: -25px;
         }
         .candles { display: flex; justify-content: center; gap: 30px; margin-bottom: -10px; position: relative; z-index: 2; }
-        .candle { width: 15px; height: 60px; background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); position: relative; }
+        
+        /* FIXED CANDLE & FLAME CSS */
+        .candle { 
+            width: 15px; height: 60px; 
+            background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); 
+            position: relative; 
+            cursor: pointer; /* Shows it's clickable */
+        }
+        
         .flame {
-            width: 20px; height: 35px; background: orange; border-radius: 50% 50% 20% 20%;
+            width: 20px; height: 35px; 
+            background: orange; /* Default flame color */
+            border-radius: 50% 50% 20% 20%;
             position: absolute; top: -35px; left: -2.5px;
-            box-shadow: 0 0 10px orange, 0 0 20px yellow, 0 0 30px white;
-            animation: flicker 0.1s infinite alternate; cursor: pointer; transition: opacity 0.3s;
-            /* Bigger tap area for mobile */
-            padding: 20px; 
-            margin: -20px;
-            background-clip: content-box; 
+            box-shadow: 0 0 10px orange, 0 0 20px yellow, 0 0 30px white; /* Glowing effect */
+            animation: flicker 0.1s infinite alternate; 
+            transition: opacity 0.3s;
+            /* Removed padding/clip hacks that caused the black blob issue */
         }
         .flame.out { opacity: 0; animation: none; }
+        
         .instruction-text { color: white; font-size: 1.2rem; margin-bottom: 40px; text-align: center; font-family: 'Playfair Display', serif; }
 
         /* 3. MAIN CARD LAYER */
@@ -191,9 +185,9 @@
         <div class="instruction-text" id="cake-instruction">Blow into your mic 🎤<br>or tap candles to make a wish!</div>
         <div class="cake-container">
             <div class="candles">
-                <div class="candle"><div class="flame" id="f1" onclick="blowCandle('f1')"></div></div>
-                <div class="candle"><div class="flame" id="f2" onclick="blowCandle('f2')"></div></div>
-                <div class="candle"><div class="flame" id="f3" onclick="blowCandle('f3')"></div></div>
+                <div class="candle" onclick="blowCandle('f1')"><div class="flame" id="f1"></div></div>
+                <div class="candle" onclick="blowCandle('f2')"><div class="flame" id="f2"></div></div>
+                <div class="candle" onclick="blowCandle('f3')"><div class="flame" id="f3"></div></div>
             </div>
             <div class="cake"></div>
             <div class="plate"></div>
@@ -257,7 +251,6 @@
         const music = document.getElementById('bg-music');
 
         function initCelebration() {
-            // FIX: Unlock Audio (Mobile requirement)
             music.volume = 0;
             music.play().then(() => {
                 music.pause();
@@ -277,7 +270,6 @@
                 microphoneStream = stream;
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 
-                // FIX: Wake up AudioContext for mobile
                 if (audioContext.state === 'suspended') {
                     audioContext.resume();
                 }
@@ -302,7 +294,6 @@
                         values += array[i];
                     }
                     const average = values / length;
-                    // Lowered threshold to 30 for easier blowing
                     if (average > 30) {
                         blowOutRandomCandle();
                     }
@@ -329,7 +320,6 @@
 
         // --- 4. Final Reveal ---
         function finishCelebration() {
-            // Stop Mic
             if (microphoneStream) {
                 microphoneStream.getTracks().forEach(track => track.stop());
             }
@@ -348,7 +338,6 @@
             cakeLayer.style.opacity = '0';
             setTimeout(() => { cakeLayer.style.display = 'none'; }, 1000);
 
-            // Play Music
             music.currentTime = 0;
             music.volume = 0.1;
             music.play().catch(e => console.log("Audio error:", e));
