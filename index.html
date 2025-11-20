@@ -300,7 +300,7 @@
             if (candlesOut === 3) { setTimeout(finishCelebration, 800); }
         }
 
-        // --- 4. Final Reveal & Outro Logic (TIMING: 39s) ---
+        // --- 4. Final Reveal & Outro Logic (PERFECT SYNC) ---
         function finishCelebration() {
             if (microphoneStream) { microphoneStream.getTracks().forEach(track => track.stop()); }
             if (javascriptNode) { javascriptNode.disconnect(); javascriptNode = null; }
@@ -318,6 +318,7 @@
             music.currentTime = 0; music.volume = 0.1;
             music.play().catch(e => console.log("Audio error:", e));
             
+            // Fade In
             let vol = 0.1;
             let fadeInInterval = setInterval(() => {
                 if (vol < 0.6) { vol += 0.05; music.volume = vol; } else { clearInterval(fadeInInterval); }
@@ -327,10 +328,10 @@
             setTimeout(() => {
                 let fadeOutInterval = setInterval(function () {
                     if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
-                }, 200);
+                }, 200); // 2.5 seconds fade out (approx 37.5s end)
             }, 35000); 
 
-            // Trigger Outro (At 39s)
+            // Trigger Outro (At 37.5s - Exactly when music hits 0)
             setTimeout(() => {
                 cardLayer.style.opacity = '0';
                 marquee.style.opacity = '0';
@@ -340,7 +341,7 @@
                     outroLayer.style.display = 'flex';
                     setTimeout(() => { outroLayer.style.opacity = '1'; }, 100);
                 }, 1000);
-            }, 39000); 
+            }, 37500); // 37.5 Seconds
 
             cardLayer.style.display = 'flex';
             setTimeout(() => { 
