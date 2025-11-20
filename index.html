@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Vanshu ✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: none; 
+        }
+
+        /* --- BACKGROUND ELEMENTS --- */
+        .marquee-container {
+            position: absolute; top: 0; width: 100%; padding: 15px 0;
+            background: rgba(255,255,255,0.05); z-index: 1;
+            opacity: 0; transition: opacity 2s ease; white-space: nowrap;
+        }
+        .marquee-content { display: flex; width: fit-content; animation: scrollText 25s linear infinite; }
+        .marquee-content span {
+            font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.85); margin-right: 100px; letter-spacing: 4px; text-transform: uppercase;
+        }
+        @keyframes scrollText { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .floater {
+            position: absolute; opacity: 0; z-index: 0;
+            animation: floatUp linear infinite; color: rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); pointer-events: none;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 0; }
+            10% { opacity: 0.7; } 90% { opacity: 0.7; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1); opacity: 0; }
+        }
+
+        /* --- CURSOR --- */
+        .cursor-dot { width: 8px; height: 8px; background: #fff; position: fixed; border-radius: 50%; z-index: 9999; pointer-events: none; }
+        .cursor-outline { width: 35px; height: 35px; border: 1.5px solid rgba(255, 255, 255, 0.8); position: fixed; border-radius: 50%; z-index: 9999; pointer-events: none; transition: all 0.1s ease; }
+
+        /* --- LAYERS --- */
+        .layer {
+            position: absolute; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        /* 1. INTRO LAYER */
+        #intro-layer { z-index: 50; background: #fdfbfb; }
+        .reveal-text { font-family: 'Playfair Display', serif; font-size: 2rem; color: #333; opacity: 0; transform: translateY(20px); animation: fadeInUp 1s ease forwards 0.5s; }
+        .enter-btn {
+            margin-top: 40px; padding: 12px 35px; border: none;
+            background: linear-gradient(to right, #667eea, #764ba2); color: white; font-family: 'Poppins', sans-serif; border-radius: 30px;
+            opacity: 0; animation: fadeInUp 1s ease forwards 1.5s; cursor: pointer; position: relative; z-index: 51; transition: transform 0.2s;
+        }
+        .enter-btn:hover { transform: scale(1.05); }
+
+        /* 2. CAKE LAYER */
+        #cake-layer { z-index: 40; background: rgba(0,0,0,0.9); display: none; opacity: 0; }
+        .cake-container { position: relative; margin-top: 50px; transform: scale(1.2); }
+        .cake {
+            width: 250px; height: 100px; background: #fecfef; border-radius: 10px 10px 0 0;
+            position: relative; box-shadow: 0 0 20px rgba(255, 192, 203, 0.5);
+        }
+        .cake::before {
+            content: ''; position: absolute; top: 40%; left: -5px; width: 260px; height: 20px;
+            background: #ff9a9e; border-radius: 10px;
+        }
+        .plate {
+            width: 300px; height: 10px; background: #eee; border-radius: 10px; margin-top: 0; margin-left: -25px;
+        }
+        .candles { display: flex; justify-content: center; gap: 30px; margin-bottom: -10px; position: relative; z-index: 2; }
+        .candle { width: 15px; height: 60px; background: repeating-linear-gradient(45deg, #fff, #fff 5px, #764ba2 5px, #764ba2 10px); position: relative; }
+        .flame {
+            width: 20px; height: 35px; background: orange; border-radius: 50% 50% 20% 20%;
+            position: absolute; top: -35px; left: -2.5px;
+            box-shadow: 0 0 10px orange, 0 0 20px yellow, 0 0 30px white;
+            animation: flicker 0.1s infinite alternate; cursor: pointer; transition: opacity 0.3s;
+        }
+        .flame.out { opacity: 0; animation: none; }
+        .instruction-text { color: white; font-size: 1.2rem; margin-bottom: 40px; text-align: center; font-family: 'Playfair Display', serif; }
+
+        /* 3. MAIN CARD LAYER */
+        #card-layer { z-index: 30; display: none; opacity: 0; }
+        .glass-card {
+            width: 360px; height: auto; min-height: 600px;
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; transform-style: preserve-3d;
+        }
+        .gallery-frame {
+            width: 100%; height: 380px; border-radius: 15px; overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 25px;
+            transform: translateZ(30px); position: relative; background: #000;
+        }
+        .gallery-img { 
+            width: 100%; height: 100%; object-fit: cover; object-position: top center; 
+            position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 1.5s ease-in-out; 
+        }
+        .gallery-img.active { opacity: 1; }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #fff; margin-bottom: 5px; transform: translateZ(40px); text-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .subtitle { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.8); margin-bottom: 15px; transform: translateZ(35px); }
+        p.wish { font-size: 0.9rem; color: #f0f0f0; text-align: center; line-height: 1.6; transform: translateZ(25px); }
+
+        @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(2deg); } }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 768px) {
+            .cursor-dot, .cursor-outline { display: none; }
+            body { cursor: auto; }
+            .glass-card { width: 90%; min-height: 550px; }
+            .gallery-frame { height: 320px; }
+            h1 { font-size: 2rem; }
+            .marquee-content span { font-size: 0.9rem; margin-right: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="floating-elements"></div>
+    <div class="marquee-container" id="marquee">
+        <div class="marquee-content">
+            <span>Happy Birthday Vanshu</span>
+            <span>Main Character Energy</span>
+            <span>Happy Birthday Vanshu</span>
+            <span>Main Character Energy</span>
+            <span>Happy Birthday Vanshu</span>
+            <span>Main Character Energy</span>
+        </div>
+    </div>
+
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
+    <div class="layer" id="intro-layer">
+        <div class="reveal-text">Hey Beautiful...</div>
+        <button class="enter-btn" onclick="initCelebration()">Open Surprise</button>
+        <p style="margin-top:10px; font-size:0.8rem; color:#666;">(Allow Microphone Access for Magic ✨)</p>
+    </div>
+
+    <div class="layer" id="cake-layer">
+        <div class="instruction-text" id="cake-instruction">Blow into your mic 🎤<br>or tap candles to make a wish!</div>
+        <div class="cake-container">
+            <div class="candles">
+                <div class="candle"><div class="flame" id="f1" onclick="blowCandle('f1')"></div></div>
+                <div class="candle"><div class="flame" id="f2" onclick="blowCandle('f2')"></div></div>
+                <div class="candle"><div class="flame" id="f3" onclick="blowCandle('f3')"></div></div>
+            </div>
+            <div class="cake"></div>
+            <div class="plate"></div>
+        </div>
+    </div>
+
+    <div class="layer" id="card-layer">
+        <div class="glass-card" id="tilt-card">
+            <div class="gallery-frame">
+                <img src="1.jpg" class="gallery-img active">
+                <img src="2.jpg" class="gallery-img">
+                <img src="3.jpg" class="gallery-img">
+                <img src="4.jpg" class="gallery-img">
+                <img src="5.jpg" class="gallery-img">
+                <img src="6.jpg" class="gallery-img">
+                <img src="7.jpg" class="gallery-img">
+                <img src="8.jpg" class="gallery-img">
+                <img src="9.jpg" class="gallery-img">
+                <img src="10.jpg" class="gallery-img">
+            </div>
+            <div class="subtitle">The Birthday Girl</div>
+            <h1>Vanshu</h1>
+            <p class="wish">
+                Happy Birthday! 🥂<br>
+                Here’s to the main character energy you bring to everything. May your year be as aesthetic as your vibes and as bright as your smile.
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // --- 1. Background Elements ---
+        const floatContainer = document.getElementById('floating-elements');
+        const symbols = ['✨', '💖', '🌸', '⭐', '🌼', '🌷', '💫', '🌟'];
+        function createFloater() {
+            const el = document.createElement('div'); el.classList.add('floater');
+            el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+            floatContainer.appendChild(el);
+            setTimeout(() => { el.remove(); }, 20000);
+        }
+        setInterval(createFloater, 150);
+
+        // --- 2. Cursor ---
+        const dot = document.getElementById('cursor-dot');
+        const outline = document.getElementById('cursor-outline');
+        window.addEventListener('mousemove', (e) => {
+            const x = e.clientX; const y = e.clientY;
+            dot.style.left = `${x}px`; dot.style.top = `${y}px`;
+            outline.animate({ left: `${x}px`, top: `${y}px` }, { duration: 400, fill: "forwards" });
+        });
+
+        // --- 3. Flow Logic & Mic ---
+        let audioContext;
+        let analyser;
+        let microphoneStream;
+        let javascriptNode;
+        let candlesOut = 0;
+        const music = document.getElementById('bg-music');
+
+        function initCelebration() {
+            // FIX: Unlock Audio Logic
+            // We play it once at 0 volume, then pause it. This "whitelists" the audio for later.
+            music.volume = 0;
+            music.play().then(() => {
+                music.pause();
+            }).catch(e => console.log("Autoplay prevented, but will retry on reveal:", e));
+
+            // Visual Transition
+            document.getElementById('intro-layer').style.transform = 'translateY(-100%)';
+            const cakeLayer = document.getElementById('cake-layer');
+            cakeLayer.style.display = 'flex';
+            setTimeout(() => { cakeLayer.style.opacity = '1'; }, 500);
+            
+            setupMicrophone();
+        }
+
+        function setupMicrophone() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                microphoneStream = stream; // Save stream to stop it later
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 1024;
+
+                microphone.connect(analyser);
+                analyser.connect(javascriptNode);
+                javascriptNode.connect(audioContext.destination);
+
+                javascriptNode.onaudioprocess = function() {
+                    const array = new Uint8Array(analyser.frequencyBinCount);
+                    analyser.getByteFrequencyData(array);
+                    let values = 0;
+                    const length = array.length;
+                    for (let i = 0; i < length; i++) {
+                        values += array[i];
+                    }
+                    const average = values / length;
+                    
+                    // Threshold
+                    if (average > 50) {
+                        blowOutRandomCandle();
+                    }
+                }
+            })
+            .catch(function(err) {
+                console.log('Mic denied or error:', err);
+            });
+        }
+
+        function blowOutRandomCandle() {
+            const ids = ['f1', 'f2', 'f3'];
+            const activeCandles = ids.filter(id => !document.getElementById(id).classList.contains('out'));
+            if (activeCandles.length > 0) { blowCandle(activeCandles[0]); }
+        }
+
+        function blowCandle(id) {
+            const flame = document.getElementById(id);
+            if (flame.classList.contains('out')) return;
+            flame.classList.add('out');
+            candlesOut++;
+            if (candlesOut === 3) { setTimeout(finishCelebration, 800); }
+        }
+
+        // --- 4. Final Reveal ---
+        function finishCelebration() {
+            // CRITICAL FIX: Stop Microphone Stream completely
+            // This releases the OS audio focus, allowing music to play clearly
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+            }
+            if (javascriptNode) {
+                javascriptNode.disconnect();
+                javascriptNode = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+
+            const cakeLayer = document.getElementById('cake-layer');
+            const cardLayer = document.getElementById('card-layer');
+            const marquee = document.getElementById('marquee');
+            
+            cakeLayer.style.opacity = '0';
+            setTimeout(() => { cakeLayer.style.display = 'none'; }, 1000);
+
+            // Play Music and Fade Up
+            music.currentTime = 0;
+            music.volume = 0.1;
+            music.play().catch(e => console.log("Audio error:", e));
+            
+            // Volume Fade In
+            let vol = 0.1;
+            let fadeInInterval = setInterval(() => {
+                if (vol < 0.6) { 
+                    vol += 0.05; 
+                    music.volume = vol; 
+                } else { 
+                    clearInterval(fadeInInterval); 
+                }
+            }, 300);
+            
+            // Fade Out after 40s
+            setTimeout(() => {
+                let fadeOutInterval = setInterval(function () {
+                    if (music.volume > 0.05) { music.volume -= 0.05; } else { clearInterval(fadeOutInterval); music.pause(); }
+                }, 200);
+            }, 40000);
+
+            cardLayer.style.display = 'flex';
+            setTimeout(() => { 
+                cardLayer.style.opacity = '1'; 
+                marquee.style.opacity = '1';
+                triggerSoftConfetti();
+            }, 500);
+        }
+
+        // --- 5. Slideshow ---
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.gallery-img');
+        function showSlides() {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1 }
+            slides[slideIndex - 1].classList.add('active');
+            setTimeout(showSlides, 3000); 
+        }
+        showSlides();
+
+        // --- 6. Tilt (PC) ---
+        const card = document.getElementById('tilt-card');
+        const container = document.getElementById('card-layer');
+        container.addEventListener('mousemove', (e) => {
+            if (window.innerWidth > 768) {
+                const rect = card.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const rotateX = ((e.clientY - centerY) / (rect.height/2)) * -5; 
+                const rotateY = ((e.clientX - centerX) / (rect.width/2)) * 5;
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            }
+        });
+
+        // --- 7. Confetti ---
+        function triggerSoftConfetti() {
+            const duration = 3000; const end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 6, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ffffff', '#ff9a9e', '#ffd700'] });
+                confetti({ particleCount: 6, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ffffff', '#ff9a9e', '#ffd700'] });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+    </script>
+</body>
+</html>
